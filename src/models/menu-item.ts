@@ -1,7 +1,13 @@
+import { LucideIcon } from "lucide-react"
+
 export interface MenuItem {
-  NAME: string
-  ICON: keyof typeof import('lucide-react') | null
-  PATH: string | null
-  SUBITEMS: MenuItem[]
+  TITLE: string
+  URL: string
+  ICON?: string
+  IS_ACTIVE?: boolean
+  ITEMS?: MenuItem[]
 }
 
+export interface MenuData {
+  [key: string]: MenuItem[]
+}

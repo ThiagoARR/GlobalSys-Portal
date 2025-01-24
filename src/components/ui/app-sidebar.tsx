@@ -1,98 +1,92 @@
-'use client'
-
-import { useState, useEffect } from 'react'
-import MenuItem from '@/components/ui/menu-item'
-import { MenuItem as MenuItemType } from '@/models/menu-item'
-import { fetchMenuItems } from '@/services/api'
+import * as React from "react"
+import {
+  AudioWaveform,
+  BadgePercent,
+  BaggageClaim,
+  BookOpen,
+  BookOpenText,
+  Bot,
+  BriefcaseBusiness,
+  Command,
+  FileText,
+  FileX,
+  Frame,
+  GalleryVerticalEnd,
+  Handshake,
+  Map,
+  MapPin,
+  Newspaper,
+  PieChart,
+  Receipt,
+  ReceiptCent,
+  ReceiptText,
+  Settings2,
+  SquareTerminal,
+  UserPlus
+} from "lucide-react"
+import { NavLinks } from "@/components/nav-main"
+import { NavComercial } from "@/components/nav-project"
+import { NavUser } from "@/components/nav-user"
+import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarMenu,
   SidebarFooter,
-  SidebarMenuSkeleton
+  SidebarHeader,
+  SidebarRail,
 } from "@/components/ui/sidebar"
-import { ModeToggle } from './mode-toggle'
+import { Skeleton } from "./skeleton"
+import { MenuData } from "@/models/menu-item"
 
-export function AppSidebar() {
-  const [menuItems, setMenuItems] = useState<MenuItemType[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+const API_URL = 'https://localhost:7288'
+// This is sample data.
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [menuData, setMenuData] = React.useState<MenuData | null>(null)
+  const [isLoading, setIsLoading] = React.useState(true)
 
-  useEffect(() => {
-    async function loadMenuItems() {
+  React.useEffect(() => {
+    const fetchMenuData = async () => {
       try {
-        const items = await fetchMenuItems()
-        setMenuItems(items)
-        setIsLoading(false)
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message || 'Failed to load menu items. Please try again later.')
-        } else {
-          setError('An unexpected error occurred. Please try again later.')
-        }
+          const response = await fetch(`${API_URL}/itemMenu`, {
+            headers: {
+              'X-API-KEY': 'f8f8133b-4c59-4ae2-9c1b-8e1b73aa8664',
+              'Content-Type': 'application/json'
+            }
+          })
+          if (!response.ok) {
+            throw new Error('Failed to fetch menu items')
+          }
+          const data = await response.json()
+          setMenuData(data)
+          return data
+      } catch (error) {
+        console.error('Error fetching menu items:', error)
+        throw error
+      } finally {
         setIsLoading(false)
       }
     }
 
-    loadMenuItems()
+    fetchMenuData()
   }, [])
 
-  if (isLoading) {
-    return (
-      <Sidebar className="w-64 border-r ">
-      <SidebarHeader>
-        <h2 className="text-lg font-semibold px-4 py-2">My App</h2>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenu className="px-2 py-2">
-            {menuItems.map(() => (
-              <SidebarMenuSkeleton />
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter>
-        <ModeToggle />
-      </SidebarFooter>
-    </Sidebar>
-    )
-  }
-
-  if (error) {
-    return (
-      <Sidebar className="w-64 border-r">
-        <div className="p-4 text-red-500">Error: {error}</div>
-      </Sidebar>
-    )
-  }
-
   return (
-    <Sidebar className="w-64 border-r ">
-      <SidebarHeader>
-        <h2 className="text-lg font-semibold px-4 py-2">My App</h2>
-      </SidebarHeader>
-      <SidebarContent className="[&::-webkit-scrollbar]:w-2
-  [&::-webkit-scrollbar-track]:bg-gray-100
-  [&::-webkit-scrollbar-thumb]:bg-gray-300
-    overflow-hidden
-    hover:overflow-y-auto
-  dark:[&::-webkit-scrollbar-track]:bg-neutral-700
-  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
-        <SidebarGroup>
-          <SidebarMenu className="px-1 py-2">
-            {menuItems.map((item) => (
-              <MenuItem key={item.NAME} item={item} />
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>{/* Add header content if needed */}</SidebarHeader>
+      <SidebarContent>
+        {isLoading ? (
+          // Mostrar skeletons enquanto carrega
+          Array.from({ length: 25 }).map((_, index) => <Skeleton key={index} className="h-6 w-full mb-2" />)
+        ) : menuData ? (
+          Object.entries(menuData).map(([category, items]) => (
+            <NavLinks key={category} category={category} items={items} />
+          ))
+        ) : (
+          <div>Failed to load menu data</div>
+        )}
       </SidebarContent>
-      <SidebarFooter>
-        <ModeToggle />
-      </SidebarFooter>
+      <SidebarFooter>{/* Add footer content if needed */}</SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   )
 }
-

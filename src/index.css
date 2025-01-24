@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -126,4 +131,9 @@ h1 {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.text-sm{
+  font-size: 0.815rem ;
+  line-height: 1.25rem;
 }
